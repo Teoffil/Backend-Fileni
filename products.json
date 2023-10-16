@@ -1,0 +1,93 @@
+[
+    {
+        "title": "Smartphone Galaxy S25",
+        "description": "Teléfono inteligente con pantalla AMOLED de 6.4 pulgadas.",
+        "price": 999,
+        "thumbnail": "smartphone_galaxy.jpg",
+        "code": "galaxyS25",
+        "stock": 15,
+        "id": 1
+    },
+    {
+        "title": "Laptop ProBook 450",
+        "description": "Portátil con procesador i7 y 16GB de RAM.",
+        "price": 1200,
+        "thumbnail": "laptop_probook.jpg",
+        "code": "probook450",
+        "stock": 10,
+        "id": 2
+    },
+    {
+        "title": "Auriculares Bluetooth X10",
+        "description": "Auriculares inalámbricos con cancelación de ruido.",
+        "price": 150,
+        "thumbnail": "headphones_x10.jpg",
+        "code": "x10headphones",
+        "stock": 30,
+        "id": 3
+    },
+    {
+        "title": "Smartwatch G Watch 5",
+        "description": "Reloj inteligente con monitor de ritmo cardíaco.",
+        "price": 250,
+        "thumbnail": "smartwatch_gwatch.jpg",
+        "code": "gwatch5",
+        "stock": 20,
+        "id": 4
+    },
+    {
+        "title": "Cámara Reflex D500",
+        "description": "Cámara DSLR con lente de 18-55mm.",
+        "price": 750,
+        "thumbnail": "camera_d500.jpg",
+        "code": "d500camera",
+        "stock": 8,
+        "id": 5
+    },
+    {
+        "title": "Consola de juegos PlayMaster 5",
+        "description": "Consola de videojuegos de nueva generación.",
+        "price": 500,
+        "thumbnail": "playmaster5_console.jpg",
+        "code": "playmaster5",
+        "stock": 5,
+        "id": 6
+    },
+    {
+        "title": "Tablet TabMax 10",
+        "description": "Tableta de 10 pulgadas con resolución 4K.",
+        "price": 400,
+        "thumbnail": "tablet_tabmax.jpg",
+        "code": "tabmax10",
+        "stock": 12,
+        "id": 7
+    },
+    {
+        "title": "Altavoz SoundMax Pro",
+        "description": "Altavoz Bluetooth con sonido envolvente 360°.",
+        "price": 100,
+        "thumbnail": "speaker_soundmax.jpg",
+        "code": "soundmaxpro",
+        "stock": 25,
+        "id": 8
+    },
+    {
+        "title": "Impresora LaserJet P1102w",
+        "description": "Impresora láser inalámbrica en blanco y negro.",
+        "price": 130,
+        "thumbnail": "printer_laserjet.jpg",
+        "code": "laserjetP1102w",
+        "stock": 10,
+        "id": 9
+    },
+    {
+        "title": "Monitor UltraWide 29\"",
+        "description": "Monitor con pantalla curva de 29 pulgadas.",
+        "price": 300,
+        "thumbnail": "monitor_ultrawide.jpg",
+        "code": "ultrawide29",
+        "stock": 6,
+        "id": 10
+    }
+]
+
