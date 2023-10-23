@@ -1,15 +1,16 @@
 const express = require('express');
 const ProductManager = require('./ProductManager');
 const CartManager = require('./cartManager');
-const cartManager = new CartManager('./carts.json');
+const cartManager = new CartManager('../carts.json');
 
 const app = express();
 app.use(express.json());
 const PORT = 8080;
 
-const productManager = new ProductManager('./products.json'); 
+const productManager = new ProductManager('../products.json'); 
 
-app.get('/products', async (req, res) => {
+// Rutas para productos
+app.get('/api/products', async (req, res) => {
     try {
         let products = await productManager.getProducts();
 
@@ -23,7 +24,7 @@ app.get('/products', async (req, res) => {
     }
 });
 
-app.get('/products/:pid', async (req, res) => {
+app.get('/api/products/:pid', async (req, res) => {
     try {
         const product = await productManager.getProductById(Number(req.params.pid));
         if (!product) {
@@ -36,12 +37,7 @@ app.get('/products/:pid', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
-
-// Ruta para agregar un nuevo producto
-app.post('/api/products/', async (req, res) => {
+app.post('/api/products', async (req, res) => {
     try {
         const product = await productManager.addProduct(req.body);
         res.json(product);
@@ -50,7 +46,6 @@ app.post('/api/products/', async (req, res) => {
     }
 });
 
-// Ruta para actualizar un producto
 app.put('/api/products/:pid', async (req, res) => {
     try {
         await productManager.updateProduct(Number(req.params.pid), req.body);
@@ -60,7 +55,6 @@ app.put('/api/products/:pid', async (req, res) => {
     }
 });
 
-// Ruta para eliminar un producto
 app.delete('/api/products/:pid', async (req, res) => {
     try {
         await productManager.deleteProduct(Number(req.params.pid));
@@ -71,7 +65,7 @@ app.delete('/api/products/:pid', async (req, res) => {
 });
 
 // Rutas para carrito
-app.post('/api/carts/', async (req, res) => {
+app.post('/api/carts', async (req, res) => {
     try {
         const cart = await cartManager.createCart();
         res.json(cart);
@@ -98,6 +92,8 @@ app.post('/api/carts/:cid/product/:pid', async (req, res) => {
     }
 });
 
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
 
 module.exports = app; 
-
