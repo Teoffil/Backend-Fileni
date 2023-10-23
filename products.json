@@ -1,14 +1,5 @@
 [
   {
-    "title": "Smartphone Galaxy S25",
-    "description": "Teléfono inteligente con pantalla AMOLED de 6.4 pulgadas.",
-    "price": 999,
-    "thumbnail": "smartphone_galaxy.jpg",
-    "code": "galaxyS25",
-    "stock": 15,
-    "id": 1
-  },
-  {
     "title": "Laptop ProBook 450",
     "description": "Portátil con procesador i7 y 16GB de RAM.",
     "price": 1200,
