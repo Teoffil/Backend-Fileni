@@ -22,10 +22,12 @@ class ProductManager {
         const products = this._readFile();
         const lastProduct = products[products.length - 1];
         const nextId = lastProduct ? lastProduct.id + 1 : 1;
-        
+    
         product.id = nextId;
+        product.status = product.status !== undefined ? product.status : true; 
         products.push(product);
         this._writeFile(products);
+        return product;
     }
 
     getProducts() {
@@ -59,5 +61,7 @@ class ProductManager {
         this._writeFile(newProducts);
     }
 }
+
+
 
 module.exports = ProductManager;
