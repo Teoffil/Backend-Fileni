@@ -1,0 +1,8 @@
+
+<ul>
+    {{#each productos}}
+    {{#if this.title}}
+    <li>{{this.title}} - ${{this.price}}</li>
+    {{/if}}
+    {{/each}}
+</ul>

@@ -1,67 +1,53 @@
 const fs = require('fs');
 
 class ProductManager {
-    constructor(filePath) {
-        this.path = filePath;
-    }
+    constructor(filename) {
+        this.filename = filename;
 
-    _readFile() {
-        try {
-            const data = fs.readFileSync(this.path, 'utf-8');
-            return JSON.parse(data);
-        } catch (error) {
-            return [];
+        // Si el archivo no existe, inicializamos con un array vacío
+        if (!fs.existsSync(filename)) {
+            fs.writeFileSync(filename, '[]');
         }
     }
 
-    _writeFile(data) {
-        fs.writeFileSync(this.path, JSON.stringify(data, null, 2));
+    // Leer todos los productos
+    listProducts() {
+        return JSON.parse(fs.readFileSync(this.filename, 'utf-8'));
     }
 
+    // Agregar un producto
     addProduct(product) {
-        const products = this._readFile();
-        const lastProduct = products[products.length - 1];
-        const nextId = lastProduct ? lastProduct.id + 1 : 1;
-    
-        product.id = nextId;
-        product.status = product.status !== undefined ? product.status : true; 
+        console.log("Adding product:", product);
+        const products = this.listProducts();
+        product.id = Date.now(); // Utilizamos el timestamp como ID único
         products.push(product);
-        this._writeFile(products);
-        return product;
+        fs.writeFileSync(this.filename, JSON.stringify(products, null, 2));
     }
 
-    getProducts() {
-        return this._readFile();
-    }
-
-    getProductById(id) {
-        const products = this._readFile();
-        const product = products.find(p => p.id === id);
-        
-        if (!product) throw new Error('Product not found!');
-        return product;
-    }
-
+    // Actualizar un producto
     updateProduct(id, updatedProduct) {
-        const products = this._readFile();
-        const index = products.findIndex(p => p.id === id);
-        
-        if (index === -1) throw new Error('Product not found!');
-        updatedProduct.id = id;  // Preserve the ID
-        
-        products[index] = updatedProduct;
-        this._writeFile(products);
+        const products = this.listProducts();
+        const productIndex = products.findIndex(product => product.id === Number(id));
+
+        if (productIndex === -1) {
+            throw new Error('El producto no fue encontrado');
+        }
+
+        products[productIndex] = { ...products[productIndex], ...updatedProduct, id: Number(id) };
+        fs.writeFileSync(this.filename, JSON.stringify(products, null, 2));
     }
 
+    // Eliminar un producto
     deleteProduct(id) {
-        const products = this._readFile();
-        const newProducts = products.filter(p => p.id !== id);
-        
-        if (newProducts.length === products.length) throw new Error('Product not found!');
-        this._writeFile(newProducts);
+        const products = this.listProducts();
+        const updatedProducts = products.filter(product => product.id !== Number(id));
+
+        if (products.length === updatedProducts.length) {
+            throw new Error('El producto no fue encontrado');
+        }
+
+        fs.writeFileSync(this.filename, JSON.stringify(updatedProducts, null, 2));
     }
 }
-
-
 
 module.exports = ProductManager;

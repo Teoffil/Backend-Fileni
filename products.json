@@ -81,11 +81,12 @@
     "id": 10
   },
   {
-    "id": 11,
-    "status": true
-  },
-  {
-    "id": 12,
-    "status": true
+    "title": "Nuevo Producto",
+    "description": "Descripción del nuevo producto",
+    "price": 100,
+    "thumbnail": "url_del_thumbnail.jpg",
+    "code": "codigo_del_producto",
+    "stock": 10,
+    "id": 1698617618254
   }
 ]

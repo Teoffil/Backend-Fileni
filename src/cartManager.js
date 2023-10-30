@@ -1,58 +1,51 @@
 const fs = require('fs');
 
 class CartManager {
-    constructor(filePath) {
-        this.path = filePath;
-    }
+    constructor(filename) {
+        this.filename = filename;
 
-    _readFile() {
-        try {
-            const data = fs.readFileSync(this.path, 'utf-8');
-            return JSON.parse(data);
-        } catch (error) {
-            return [];
+        // Si el archivo no existe, inicializamos con un array vacío
+        if (!fs.existsSync(filename)) {
+            fs.writeFileSync(filename, '[]');
         }
     }
 
-    _writeFile(data) {
-        fs.writeFileSync(this.path, JSON.stringify(data, null, 2));
+    // Leer todos los carritos
+    listCarts() {
+        return JSON.parse(fs.readFileSync(this.filename, 'utf-8'));
     }
 
-    createCart() {
-        const carts = this._readFile();
-        const lastCart = carts[carts.length - 1];
-        const nextId = lastCart ? lastCart.id + 1 : 1;
-        
-        const cart = {
-            id: nextId,
-            products: []
-        };
+    // Agregar un carrito
+    addCart(cart) {
+        const carts = this.listCarts();
+        cart.id = Date.now(); // Utilizamos el timestamp como ID único
         carts.push(cart);
-        this._writeFile(carts);
-        return cart;
+        fs.writeFileSync(this.filename, JSON.stringify(carts, null, 2));
     }
 
-    addProductToCart(cartId, productId) {
-        const carts = this._readFile();
-        const cart = carts.find(c => c.id === cartId);
-        if (!cart) throw new Error('Cart not found!');
+    // Actualizar un carrito
+    updateCart(id, updatedCart) {
+        const carts = this.listCarts();
+        const cartIndex = carts.findIndex(cart => cart.id === Number(id));
 
-        const productInCart = cart.products.find(p => p.product === productId);
-        if (productInCart) {
-            productInCart.quantity += 1;
-        } else {
-            cart.products.push({ product: productId, quantity: 1 });
+        if (cartIndex === -1) {
+            throw new Error('El carrito no fue encontrado');
         }
 
-        this._writeFile(carts);
-        return cart;
+        carts[cartIndex] = { ...carts[cartIndex], ...updatedCart, id: Number(id) };
+        fs.writeFileSync(this.filename, JSON.stringify(carts, null, 2));
     }
 
-    getCartById(cartId) {
-        const carts = this._readFile();
-        const cart = carts.find(c => c.id === cartId);
-        if (!cart) throw new Error('Cart not found!');
-        return cart;
+    // Eliminar un carrito
+    deleteCart(id) {
+        const carts = this.listCarts();
+        const updatedCarts = carts.filter(cart => cart.id !== Number(id));
+
+        if (carts.length === updatedCarts.length) {
+            throw new Error('El carrito no fue encontrado');
+        }
+
+        fs.writeFileSync(this.filename, JSON.stringify(updatedCarts, null, 2));
     }
 }
 
