@@ -2,9 +2,9 @@
   "name": "codertercerdesafio",
   "version": "1.0.0",
   "description": "Servidor basado en express para consultar un archivo de productos.",
-  "main": "src/app.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",

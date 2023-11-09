@@ -81,12 +81,8 @@
     "id": 10
   },
   {
-    "title": "Nuevo Producto",
-    "description": "Descripción del nuevo producto",
-    "price": 100,
-    "thumbnail": "url_del_thumbnail.jpg",
-    "code": "codigo_del_producto",
-    "stock": 10,
-    "id": 1698617618254
+    "id": 1699558281849,
+    "title": "Papa",
+    "price": 131
   }
 ]

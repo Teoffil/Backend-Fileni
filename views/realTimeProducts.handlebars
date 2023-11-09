@@ -2,13 +2,13 @@
 <h1>Productos en tiempo real</h1>
 <ul id="productList">
     {{#each productos}}
-    <li>{{this.title}}</li>
+    <li>{{this.title}} - ${{this.price}} <button class="deleteButton" data-id="{{this.id}}">Eliminar</button></li>
     {{/each}}
 </ul>
 
 <form id="addProductForm">
-    <input type="text" name="productName" placeholder="Nombre del Producto">
-    <input type="number" name="productPrice" placeholder="Precio del Producto">
+    <input type="text" id="productName" placeholder="Nombre del Producto">
+    <input type="number" id="productPrice" placeholder="Precio del Producto">
     <button type="submit">Agregar Producto</button>
 </form>
 
@@ -16,16 +16,26 @@
 <script>
     const socket = io.connect();
 
-    socket.on('update-products', function (data) {
+    socket.on('update-products', function (productos) {
         const productList = document.getElementById('productList');
-        productList.innerHTML = data.map(product => `<li>${product.title}</li>`).join('');
+        productList.innerHTML = productos.map(product => 
+            `<li>${product.title} - $${product.price} <button class="deleteButton" data-id="${product.id}">Eliminar</button></li>`
+        ).join('');
     });
 
     document.getElementById('addProductForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const productName = e.target.elements.productName.value;
-        const productPrice = e.target.elements.productPrice.value;
-        console.log("Form submitted with:", productName, productPrice);  // Debugging log
-        socket.emit('addProduct', { title: productName, price: parseFloat(productPrice) });
+        const productName = document.getElementById('productName').value;
+        const productPrice = document.getElementById('productPrice').value;
+        socket.emit('add-product', { title: productName, price: parseFloat(productPrice) });
+        document.getElementById('productName').value = '';
+        document.getElementById('productPrice').value = '';
+    });
+
+    document.getElementById('productList').addEventListener('click', function(e) {
+        if (e.target && e.target.matches('.deleteButton')) {
+            const productId = e.target.dataset.id;
+            socket.emit('delete-product', productId);
+        }
     });
 </script>
