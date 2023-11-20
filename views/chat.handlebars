@@ -1,19 +1,48 @@
 <h1>Chat</h1>
 
 <form id="chat-form">
-    <input type="text" name="user" placeholder="Ingrese su nombre">
-    <input type="text" name="message" placeholder="Escriba un mensaje">
-
+    <input type="text" id="user" placeholder="Ingrese su nombre">
+    <input type="text" id="message" placeholder="Escriba un mensaje">
     <button type="submit">Enviar</button>
-    </form>
+</form>
 
-    <ul id="chat-messages">
+<ul id="chat-messages">
     {{#each messages}}
         <li><b>{{this.user}}</b>: {{this.message}}</li>
     {{/each}}
 </ul>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
-  // JavaScript para enviar el formulario vía AJAX
-  // y actualizar la lista de mensajes
+    const socket = io();
+
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Obtener el usuario y el mensaje del formulario
+        const user = document.getElementById('user').value.trim();
+        const message = document.getElementById('message').value.trim();
+        
+        // Verificar si ambos campos tienen contenido
+        if (!user || !message) {
+        return false;
+        }
+
+        // Enviar el mensaje al servidor a través de WebSockets
+        socket.emit('new-message', { user, message });
+
+        // Limpiar el campo de mensaje
+        document.getElementById('message').value = '';
+    });
+
+    // Escuchar por nuevos mensajes desde el servidor
+    socket.on('chat-message', function(data) {
+        // Añadir el mensaje a la lista de mensajes
+        const messageElement = document.createElement('li');
+        messageElement.innerHTML = `<b>${data.user}</b>: ${data.message}`;
+        document.getElementById('chat-messages').appendChild(messageElement);
+
+        // Auto desplazarse hacia abajo cuando llega un nuevo mensaje
+        messageElement.scrollIntoView();
+    });
 </script>
