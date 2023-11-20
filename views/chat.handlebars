@@ -1,0 +1,19 @@
+<h1>Chat</h1>
+
+<form id="chat-form">
+    <input type="text" name="user" placeholder="Ingrese su nombre">
+    <input type="text" name="message" placeholder="Escriba un mensaje">
+
+    <button type="submit">Enviar</button>
+    </form>
+
+    <ul id="chat-messages">
+    {{#each messages}}
+        <li><b>{{this.user}}</b>: {{this.message}}</li>
+    {{/each}}
+</ul>
+
+<script>
+  // JavaScript para enviar el formulario vía AJAX
+  // y actualizar la lista de mensajes
+</script>

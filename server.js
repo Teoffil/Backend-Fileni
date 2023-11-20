@@ -1,132 +1,134 @@
+
 const express = require('express');
+const app = express(); // Asegúrese de inicializar la aplicación Express
 const bodyParser = require('body-parser');
-const CartManager = require('./src/cartManager.js');
-const ProductManager = require('./src/productManager.js');
+const mongoose = require('mongoose');
+const exphbs = require('express-handlebars');
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-const app = express();
-const port = 3000;
+// Conectamos a MongoDB (Asegúrese de tener la cadena de conexión correcta)
 
-const cartManager = new CartManager('carts.json');
-const productManager = new ProductManager('products.json');
+mongoose.connect('mongodb+srv://ecommerce:wzVCmATHiSnMv0WM@coderHouse.mongodb.net/ecommerce', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected...'))
+.catch(err => console.error(err));
+
+// Require de los managers
+const ProductManagerMongo = require('./dao/mongo/productManagerMongo');
+const CartManagerMongo = require('./dao/mongo/cartManagerMongo');
+const MessageModel = require('./dao/models/messageModel'); // Modelo para los mensajes
+
+// Instanciamos los managers
+const productManager = new ProductManagerMongo();
+const cartManager = new CartManagerMongo();
 
 // Middleware
 app.use(bodyParser.json());
+app.use(express.static('path-to-your-static-files')); // Servir archivos estáticos
 
 // Configura Handlebars
-const exphbs = require('express-handlebars');
 app.engine('handlebars', exphbs({ defaultLayout: null }));
 app.set('view engine', 'handlebars');
-
-// Configura Socket.io
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
 
 // Listening for 'add-product' event from the client
 io.on('connection', (socket) => {
     console.log('cliente conectado');
 
-    socket.on('add-product', (product) => {
-        // Adding the product to the product list
-        const newProduct = {
-            id: Date.now().toString(),
-            title: product.title,
-            price: product.price
-        };
-        
-    console.log('Adding product:', newProduct);
-    const productsBeforeAdd = productManager.listProducts();
-    console.log('Products before adding:', productsBeforeAdd);
-    productManager.addProduct(newProduct);
-    const productsAfterAdd = productManager.listProducts();
-    console.log('Products after adding:', productsAfterAdd);
-    
-
-        // Emitting 'update-products' event to all connected clients
-        io.emit('update-products', productManager.listProducts());
+    socket.on('add-product', async (product) => {
+        try {
+            await productManager.addProduct(product);
+            io.emit('update-products', await productManager.listProducts());
+        } catch (error) {
+            console.error('Error al agregar producto:', error);
+        }
     });
 
-    socket.on('delete-product', (productId) => {
-        // Removing the product from the product list
-        productManager.deleteProduct(productId);
-
-        // Emitting 'update-products' event to all connected clients
-        io.emit('update-products', productManager.listProducts());
+    socket.on('delete-product', async (productId) => {
+        try {
+            await productManager.deleteProduct(productId);
+            io.emit('update-products', await productManager.listProducts());
+        } catch (error) {
+            console.error('Error al eliminar producto:', error);
+        }
     });
 });
 
 // Ruta principal para mostrar los productos en la vista home.handlebars
-app.get('/', (req, res) => {
-    const productos = productManager.listProducts();
-    res.render('home', { productos });
+app.get('/', async (req, res) => {
+    try {
+        const productos = await productManager.listProducts();
+        res.render('home', { productos });
+    } catch (error) {
+        res.status(500).send('Error al obtener los productos');
+    }
 });
 
 // Ruta para productos en tiempo real
-app.get('/realtimeproducts', (req, res) => {
-    const productos = productManager.listProducts();
-    res.render('realTimeProducts', { productos });
+app.get('/realtimeproducts', async (req, res) => {
+    try {
+        const productos = await productManager.listProducts();
+        res.render('realTimeProducts', { productos });
+    } catch (error) {
+        res.status(500).send('Error al obtener los productos');
+    }
 });
 
 // Rutas de productos
-app.get('/products', (req, res) => {
-    res.json(productManager.listProducts());
-});
-
-app.post('/products', (req, res) => {
-    productManager.addProduct(req.body);
-    
-    io.emit('update-products', productManager.listProducts());
-    res.status(201).json({ message: 'Producto agregado correctamente' });
-});
-
-app.put('/products/:id', (req, res) => {
+app.get('/products', async (req, res) => {
     try {
-        productManager.updateProduct(req.params.id, req.body);
+        res.json(await productManager.listProducts());
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/products', async (req, res) => {
+    try {
+        await productManager.addProduct(req.body);
+        io.emit('update-products', await productManager.listProducts());
+        res.status(201).json({ message: 'Producto agregado correctamente' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/products/:id', async (req, res) => {
+    try {
+        await productManager.updateProduct(req.params.id, req.body);
         res.json({ message: 'Producto actualizado correctamente' });
     } catch (error) {
         res.status(404).json({ error: error.message });
     }
 });
 
-app.delete('/products/:id', (req, res) => {
+app.delete('/products/:id', async (req, res) => {
     try {
-        productManager.deleteProduct(req.params.id);
-        
-        io.emit('update-products', productManager.listProducts());
+        await productManager.deleteProduct(req.params.id);
+        io.emit('update-products', await productManager.listProducts());
         res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
         res.status(404).json({ error: error.message });
     }
 });
 
-// Rutas del carrito
-app.get('/carts', (req, res) => {
-    res.json(cartManager.listCarts());
+
+// Rutas del servidor
+// ... rutas para productos y otras funcionalidades ...
+
+// Ruta para servir la vista del chat
+app.get('/chat', (req, res) => {
+    MessageModel.find().then(messages => {
+        res.render('chat', { messages });
+    }).catch(err => {
+        res.status(500).send('Error al obtener los mensajes');
+    });
 });
 
-app.post('/carts', (req, res) => {
-    cartManager.addCart(req.body);
-    res.status(201).json({ message: 'Carrito agregado correctamente' });
-});
-
-app.put('/carts/:id', (req, res) => {
-    try {
-        cartManager.updateCart(req.params.id, req.body);
-        res.json({ message: 'Carrito actualizado correctamente' });
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-
-app.delete('/carts/:id', (req, res) => {
-    try {
-        cartManager.deleteCart(req.params.id);
-        res.json({ message: 'Carrito eliminado correctamente' });
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-
-// Iniciar el servidor con http.listen en lugar de app.listen debido a la integración con Socket.io
+// Definir el puerto y iniciar el servidor
+const port = process.env.PORT || 3000;
 http.listen(port, () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
 });

@@ -1,52 +1,55 @@
-const fs = require('fs');
+// productManager.js
+const Product = require('../dao/models/productModel');
 
 class ProductManager {
-    constructor(filename) {
-        this.filename = filename;
-
-        // Si el archivo no existe, inicializamos con un array vacío
-        if (!fs.existsSync(filename)) {
-            fs.writeFileSync(filename, '[]');
+    async listProducts() {
+        try {
+        return await Product.find({});
+        } catch (error) {
+        // Manejar error.
+        console.error('Error al listar los productos:', error);
+        throw error;
         }
     }
 
-    // Leer todos los productos
-    listProducts() {
-        return JSON.parse(fs.readFileSync(this.filename, 'utf-8'));
-    }
-
-    // Agregar un producto
-    addProduct(product) {
-        console.log("Adding product:", product);
-        const products = this.listProducts();
-        product.id = Date.now(); // Utilizamos el timestamp como ID único
-        products.push(product);
-        fs.writeFileSync(this.filename, JSON.stringify(products, null, 2));
-    }
-
-    // Actualizar un producto
-    updateProduct(id, updatedProduct) {
-        const products = this.listProducts();
-        const productIndex = products.findIndex(product => product.id === Number(id));
-
-        if (productIndex === -1) {
-            throw new Error('El producto no fue encontrado');
+    async addProduct(productData) {
+        try {
+        const product = new Product(productData);
+        await product.save();
+        console.log('Producto agregado:', product);
+        } catch (error) {
+        // Manejar error.
+        console.error('Error al agregar el producto:', error);
+        throw error;
         }
-
-        products[productIndex] = { ...products[productIndex], ...updatedProduct, id: Number(id) };
-        fs.writeFileSync(this.filename, JSON.stringify(products, null, 2));
     }
 
-    // Eliminar un producto
-    deleteProduct(id) {
-        const products = this.listProducts();
-        const updatedProducts = products.filter(product => product.id !== Number(id));
-
-        if (products.length === updatedProducts.length) {
-            throw new Error('El producto no fue encontrado');
+    async updateProduct(id, productData) {
+        try {
+        const product = await Product.findByIdAndUpdate(id, productData, { new: true });
+        if (!product) {
+            throw new Error('Producto no encontrado');
         }
+        console.log('Producto actualizado:', product);
+        } catch (error) {
+        // Manejar error.
+        console.error('Error al actualizar el producto:', error);
+        throw error;
+        }
+    }
 
-        fs.writeFileSync(this.filename, JSON.stringify(updatedProducts, null, 2));
+    async deleteProduct(id) {
+        try {
+        const product = await Product.findByIdAndDelete(id);
+        if (!product) {
+            throw new Error('Producto no encontrado');
+        }
+        console.log('Producto eliminado:', product);
+        } catch (error) {
+        // Manejar error.
+        console.error('Error al eliminar el producto:', error);
+        throw error;
+        }
     }
 }
 
